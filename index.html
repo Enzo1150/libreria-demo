@@ -79,6 +79,17 @@
         <div class="content">
             <section id="productos">
                 <h1>Maestro de Productos</h1>
+                <form id="formAgregarProducto">
+                    <label for="nombreProducto">Nombre del Producto:</label>
+                    <input type="text" id="nombreProducto" required>
+                    <label for="precioCompra">Precio de Compra:</label>
+                    <input type="number" id="precioCompra" required>
+                    <label for="precioVenta">Precio de Venta:</label>
+                    <input type="number" id="precioVenta" required>
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" required>
+                    <button type="submit">Agregar Producto</button>
+                </form>
                 <table>
                     <thead>
                         <tr>
@@ -89,11 +100,10 @@
                             <th>Margen de Ganancia</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tablaProductos">
                         <!-- Aquí se agregarían productos dinámicamente -->
                     </tbody>
                 </table>
-                <button>Agregar Producto</button>
             </section>
 
             <section id="ventas">
@@ -138,9 +148,30 @@
             { nombre: 'Libro B', precioCompra: 200, precioVenta: 250, stock: 30 }
         ];
 
-        // Función para agregar productos al maestro de productos
+        // Función para agregar productos al array y actualizarlos en la tabla
+        function agregarProducto(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombreProducto').value;
+            const precioCompra = parseFloat(document.getElementById('precioCompra').value);
+            const precioVenta = parseFloat(document.getElementById('precioVenta').value);
+            const stock = parseInt(document.getElementById('stock').value);
+
+            const nuevoProducto = {
+                nombre,
+                precioCompra,
+                precioVenta,
+                stock
+            };
+
+            productos.push(nuevoProducto);
+            cargarProductos();
+            document.getElementById('formAgregarProducto').reset(); // Limpiar formulario
+        }
+
+        // Cargar productos en la tabla
         function cargarProductos() {
-            const tabla = document.querySelector('table tbody');
+            const tabla = document.getElementById('tablaProductos');
             tabla.innerHTML = '';
             productos.forEach(producto => {
                 const tr = document.createElement('tr');
@@ -170,6 +201,9 @@
                 reporte.appendChild(tr);
             });
         }
+
+        // Agregar evento de formulario
+        document.getElementById('formAgregarProducto').addEventListener('submit', agregarProducto);
 
         // Cargar productos al inicio
         cargarProductos();
