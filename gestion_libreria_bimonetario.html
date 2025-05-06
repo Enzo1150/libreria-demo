@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión Librería Bimonetaria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; background: #f4f4f4; }
+        .sidebar { width: 290px; background: #333; color: #fff; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+        .sidebar h2 { text-align: center; font-size: 24px; margin-bottom: 20px; }
+        .sidebar a { color: #fff; text-decoration: none; padding: 10px; margin: 5px 0; background: #444; border-radius: 5px; text-align: center; transition: background 0.3s;}
+        .sidebar a:hover, .sidebar a.active { background: #4CAF50; }
+        .content { flex: 1; padding: 20px; overflow-y: auto; }
+        section { display: none; }
+        section.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background: #4CAF50; color: #fff; }
+        form { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+        input, select, button, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 48%; }
+        textarea { width: 100%; min-height: 60px; }
+        button { background: #4CAF50; color: #fff; cursor: pointer; }
+        button:hover { background: #388d3c; }
+        .alerta-stock { color: #fff; background: #c0392b; padding: 2px 8px; border-radius: 6px; font-size: 13px; margin-left: 5px;}
+        .b-action { background: #e67e22; color: #fff; border: none; padding: 6px 10px; border-radius:4px; cursor:pointer;}
+        .b-action:hover { background: #ca6f1e;}
+        .danger { background: #c0392b; color: #fff; border: none; }
+        .danger:hover { background: #a93226; }
+        .small { font-size: 13px; color: #555; }
+        .cc-table { margin-bottom: 20px; }
+        .cc-table caption { font-weight: bold; margin-bottom: 8px; }
+        .msg { padding: 12px; margin-bottom: 16px; border-radius: 6px; font-size: 16px; }
+        .msg-ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
+        .msg-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
+        .reporte-btns { margin: 15px 0; }
+        .reporte-btns button { width: unset; margin-right: 10px; }
+        .backup-btns { margin: 15px 0; }
+        .backup-btns input[type="file"] { width: unset; }
+        .reporte-resumen { margin-bottom: 16px; background: #e8f5e9; padding: 10px; border-radius: 6px; }
+        .usuario-bar { text-align: right; font-size: 15px; padding: 8px 0 5px 0; color: #333;}
+        .gestion-indicadores { display: flex; flex-wrap: wrap; gap: 20px; }
+        .gestion-card { background: #fff; border-radius: 8px; padding: 16px 20px; min-width: 200px; margin-bottom: 20px; box-shadow: 1px 1px 10px #ddd;}
+        .gestion-card h3 { margin: 0 0 8px 0; font-size: 21px; }
+        .gestion-card .indicador-flecha { font-size: 20px; vertical-align: middle; }
+        .gestion-card .positivo { color: #2e7d32; font-weight: bold; }
+        .gestion-card .negativo { color: #c0392b; font-weight: bold; }
+        .gestion-card .neutro { color: #888; }
+        .gestion-pagos { margin-top: 18px; }
+        .gestion-pagos table { margin-top: 0; }
+        .historial-edicion { font-size:12px; color: #666; margin: 0; }
+        .cotiz { font-size:12px; color: #888; }
+        @media (max-width: 900px) {
+            .sidebar { width: 100px; padding: 8px;}
+            .sidebar h2 { font-size: 16px;}
+            .content { padding: 5px;}
+            input, select, button, textarea { width: 100%; }
+            .gestion-indicadores { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Gestión Librería</h2>
+        <a href="#" data-section="productos" class="active">Productos</a>
+        <a href="#" data-section="compras">Compras</a>
+        <a href="#" data-section="ventas">Ventas</a>
+        <a href="#" data-section="clientes">Clientes</a>
+        <a href="#" data-section="proveedores">Proveedores</a>
+        <a href="#" data-section="gastos">Gastos</a>
+        <a href="#" data-section="cuentas_corrientes">Cuenta Corriente</a>
+        <a href="#" data-section="gestion">Gestión</a>
+        <a href="#" data-section="reportes">Reportes</a>
+        <a href="#" data-section="libros">Libros Contables</a>
+        <a href="#" data-section="dolar">Cotización Dólar</a>
+        <a href="#" data-section="backup">Backup</a>
+        <a href="#" data-section="formatear">Formatear Todo</a>
+    </div>
+    <div class="content">
+        <div class="usuario-bar" id="usuarioBar"></div>
+
+        <!-- Productos -->
+        <section id="productos" class="active">
+            <h1>Productos</h1>
+            <form id="formAgregarProducto">
+                <input id="nombreProducto" placeholder="Nombre" required>
+                <input id="precioCompra" type="number" placeholder="Precio compra" step="0.01" required>
+                <input id="precioVenta" type="number" placeholder="Precio venta" step="0.01" required>
+                <select id="ivaProducto" required>
+                  <option value="0">0%</option>
+                  <option value="0.105">10,5%</option>
+                  <option value="0.21" selected>21%</option>
+                </select>
+                <input id="stockMin" type="number" placeholder="Stock mínimo">
+                <button type="submit">Agregar</button>
+            </form>
+            <div id="msgProductos"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th><th>Compra</th><th>Venta</th><th>IVA</th><th>Margen</th><th>Stock</th><th>Mínimo</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProductos"></tbody>
+            </table>
+        </section>
+
+        <!-- Compras -->
+        <section id="compras">
+            <h1>Compras</h1>
+            <form id="formRegistrarCompra">
+                <select id="productoCompra" required></select>
+                <input id="cantidadCompra" type="number" placeholder="Cantidad" required>
+                <input id="precioCompraUnitario" type="number" placeholder="Precio unitario" step="0.01" required>
+                <select id="ivaCompra" required>
+                  <option value="0">0%</option>
+                  <option value="0.105">10,5%</option>
+                  <option value="0.21" selected>21%</option>
+                </select>
+                <select id="proveedorCompra" required></select>
+                <select id="tipoPagoCompra" required>
+                    <option value="Caja">Caja</option>
+                    <option value="Cuenta Corriente">Cuenta Corriente</option>
+                </select>
+                <input id="fechaCompra" type="date" required>
+                <button type="submit">Registrar</button>
+            </form>
+            <div id="msgCompras"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th><th>Cantidad</th><th>Precio</th><th>IVA</th><th>Total</th><th>Proveedor</th><th>Pago</th><th>Fecha</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCompras"></tbody>
+            </table>
+        </section>
+
+        <!-- Ventas -->
+        <section id="ventas">
+            <h1>Ventas</h1>
+            <form id="formRegistrarVenta">
+                <select id="productoVenta" required></select>
+                <input id="cantidadVenta" type="number" placeholder="Cantidad" required>
+                <input id="descuentoVenta" type="number" placeholder="Descuento %" step="0.01">
+                <select id="ivaVenta" required>
+                  <option value="0">0%</option>
+                  <option value="0.105">10,5%</option>
+                  <option value="0.21" selected>21%</option>
+                </select>
+                <select id="tipoPagoVenta" required>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Transferencia">Transferencia</option>
+                    <option value="Bancos">Bancos</option>
+                    <option value="Cuenta Corriente">Cuenta Corriente</option>
+                </select>
+                <select id="clienteVenta" required></select>
+                <input id="fechaVenta" type="date" required>
+                <button type="submit">Registrar</button>
+            </form>
+            <div id="msgVentas"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Desc.</th><th>IVA</th><th>Total</th><th>Pago</th><th>Cliente</th><th>Fecha</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaVentas"></tbody>
+            </table>
+        </section>
+
+        <!-- Clientes -->
+        <section id="clientes">
+            <h1>Clientes</h1>
+            <form id="formAgregarCliente">
+                <input id="nombreCliente" placeholder="Nombre" required>
+                <input id="cuitCliente" placeholder="CUIT">
+                <button type="submit">Agregar</button>
+            </form>
+            <div id="msgClientes"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th><th>CUIT</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes"></tbody>
+            </table>
+        </section>
+
+        <!-- Proveedores -->
+        <section id="proveedores">
+            <h1>Proveedores</h1>
+            <form id="formAgregarProveedor">
+                <input id="nombreProveedor" placeholder="Nombre" required>
+                <input id="cuitProveedor" placeholder="CUIT">
+                <button type="submit">Agregar</button>
+            </form>
+            <div id="msgProveedores"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th><th>CUIT</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProveedores"></tbody>
+            </table>
+        </section>
+
+        <!-- Gastos -->
+        <section id="gastos">
+            <h1>Gastos</h1>
+            <form id="formRegistrarGasto">
+                <select id="categoriaGasto" required></select>
+                <input id="nuevaCategoriaGasto" placeholder="Nueva categoría">
+                <button type="button" onclick="agregarCategoriaGasto()">Agregar categoría</button>
+                <select id="proveedorGasto" required></select>
+                <input id="montoGasto" type="number" placeholder="Monto" step="0.01" required>
+                <select id="ivaGasto" required>
+                  <option value="0">0%</option>
+                  <option value="0.105">10,5%</option>
+                  <option value="0.21" selected>21%</option>
+                </select>
+                <input id="detalleGasto" placeholder="Detalle">
+                <input id="fechaGasto" type="date" required>
+                <button type="submit">Registrar</button>
+            </form>
+            <div id="msgGastos"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Categoria</th><th>Proveedor</th><th>Monto</th><th>IVA</th><th>Total</th><th>Detalle</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaGastos"></tbody>
+            </table>
+        </section>
+
+        <!-- Cuenta Corriente -->
+        <section id="cuentas_corrientes">
+            <h1>Cuentas Corrientes</h1>
+            <form id="formRegistrarPagoCC">
+                <select id="tipoPagoCC" required>
+                    <option value="">Tipo</option>
+                    <option value="cliente">Cliente paga</option>
+                    <option value="proveedor">Pago a proveedor</option>
+                </select>
+                <select id="nombrePagoCC" required>
+                    <option value="">Seleccione</option>
+                </select>
+                <input id="montoPagoCC" type="number" placeholder="Monto" step="0.01" required>
+                <input id="fechaPagoCC" type="date" required>
+                <button type="submit">Registrar pago</button>
+            </form>
+            <div id="msgPagosCC"></div>
+            <div class="gestion-pagos">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th><th>Nombre</th><th>Monto</th><th>Fecha</th><th>Usuario</th><th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPagosCC"></tbody>
+                </table>
+            </div>
+            <div id="ccClientes"></div>
+            <div id="ccProveedores"></div>
+        </section>
+
+        <!-- Gestión -->
+        <section id="gestion">
+            <h1>Indicadores de Gestión</h1>
+            <div id="indicadoresGestion" class="gestion-indicadores"></div>
+        </section>
+
+        <!-- Reportes -->
+        <section id="reportes">
+            <h1>Reportes</h1>
+            <div class="reporte-btns">
+                <input type="date" id="fechaInicioReporte">
+                <input type="date" id="fechaFinReporte">
+                <button onclick="mostrarReporte()">Ver Reporte</button>
+            </div>
+            <div id="reporteResultado"></div>
+        </section>
+
+        <!-- Libros -->
+        <section id="libros">
+            <h1>Libro Diario</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Descripción</th><th>Cuenta</th><th>Debe</th><th>Haber</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLibroDiario"></tbody>
+            </table>
+            <h1>Libro Mayor</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cuenta</th><th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLibroMayor"></tbody>
+            </table>
+        </section>
+
+        <!-- Dólar -->
+        <section id="dolar">
+            <h1>Cotización Dólar</h1>
+            <form id="formCargaDolar">
+                <textarea id="textoDolar" placeholder="Pegar cotizaciones: dd/mm/aaaa compra venta, una por línea" required></textarea>
+                <button type="submit">Cargar</button>
+            </form>
+            <div id="msgDolar"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Compra</th><th>Venta</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaDolar"></tbody>
+            </table>
+        </section>
+
+        <!-- Backup -->
+        <section id="backup">
+            <h1>Backup</h1>
+            <div class="backup-btns">
+                <button onclick="exportarBackup()">Exportar Backup</button>
+                <input type="file" id="inputImportBackup" accept=".json">
+                <button onclick="importarBackup()">Importar Backup</button>
+            </div>
+            <div id="msgBackup"></div>
+        </section>
+
+        <!-- Formatear Todo -->
+        <section id="formatear">
+            <h1>Formatear Todo</h1>
+            <button class="danger" onclick="formatearTodo()">Borrar TODOS los datos</button>
+        </section>
+    </div>
+    <script src="gestion_libreria_bimonetario.js"></script>
+</body>
+</html>
