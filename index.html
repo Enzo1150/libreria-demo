@@ -142,11 +142,7 @@
     </div>
 
     <script>
-        // Datos de ejemplo para los productos
-        const productos = [
-            { nombre: 'Libro A', precioCompra: 100, precioVenta: 150, stock: 50 },
-            { nombre: 'Libro B', precioCompra: 200, precioVenta: 250, stock: 30 }
-        ];
+        const productos = [];
 
         // Función para agregar productos al array y actualizarlos en la tabla
         function agregarProducto(event) {
@@ -183,6 +179,16 @@
                     <td>${(producto.precioVenta - producto.precioCompra).toFixed(2)}</td>
                 `;
                 tabla.appendChild(tr);
+            });
+
+            // Actualizar el dropdown para seleccionar productos en la sección de ventas
+            const select = document.getElementById('producto');
+            select.innerHTML = ''; // Limpiar opciones anteriores
+            productos.forEach((producto, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = producto.nombre;
+                select.appendChild(option);
             });
         }
 
