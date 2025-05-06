@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Librería Completa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .sidebar h2 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #444;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #555;
+        }
+        .sidebar a.active {
+            background-color: #4CAF50;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        section {
+            display: none;
+        }
+        section.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 48%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Gestión Librería</h2>
+        <a href="#" onclick="showSection('productos')" class="active">Productos</a>
+        <a href="#" onclick="showSection('ventas')">Ventas</a>
+        <a href="#" onclick="showSection('compras')">Compras</a>
+        <a href="#" onclick="showSection('clientes')">Clientes</a>
+        <a href="#" onclick="showSection('proveedores')">Proveedores</a>
+        <a href="#" onclick="showSection('libros')">Libros Contables</a>
+    </div>
+    <div class="content">
+        <!-- Productos -->
+        <section id="productos" class="active">
+            <h1>Gestión de Productos</h1>
+            <form id="formAgregarProducto">
+                <input type="text" id="nombreProducto" placeholder="Nombre del Producto" required>
+                <input type="number" id="precioCompra" placeholder="Precio de Compra" required>
+                <input type="number" id="precioVenta" placeholder="Precio de Venta" required>
+                <input type="number" id="stock" placeholder="Stock" required>
+                <button type="submit">Agregar Producto</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProductos"></tbody>
+            </table>
+        </section>
+
+        <!-- Ventas -->
+        <section id="ventas">
+            <h1>Registro de Ventas</h1>
+            <form id="formRegistrarVenta">
+                <select id="productoVenta" required>
+                    <option value="">Seleccione un Producto</option>
+                </select>
+                <input type="number" id="cantidadVenta" placeholder="Cantidad" required>
+                <select id="clienteVenta" required>
+                    <option value="">Seleccione un Cliente</option>
+                </select>
+                <button type="submit">Registrar Venta</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Cliente</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaVentas"></tbody>
+            </table>
+        </section>
+
+        <!-- Compras -->
+        <section id="compras">
+            <h1>Registro de Compras</h1>
+            <form id="formRegistrarCompra">
+                <input type="text" id="productoCompra" placeholder="Producto" required>
+                <input type="number" id="cantidadCompra" placeholder="Cantidad" required>
+                <input type="text" id="proveedorCompra" placeholder="Proveedor" required>
+                <button type="submit">Registrar Compra</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCompras"></tbody>
+            </table>
+        </section>
+
+        <!-- Clientes -->
+        <section id="clientes">
+            <h1>Gestión de Clientes</h1>
+            <form id="formAgregarCliente">
+                <input type="text" id="nombreCliente" placeholder="Nombre del Cliente" required>
+                <button type="submit">Agregar Cliente</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes"></tbody>
+            </table>
+        </section>
+
+        <!-- Proveedores -->
+        <section id="proveedores">
+            <h1>Gestión de Proveedores</h1>
+            <form id="formAgregarProveedor">
+                <input type="text" id="nombreProveedor" placeholder="Nombre del Proveedor" required>
+                <button type="submit">Agregar Proveedor</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaProveedores"></tbody>
+            </table>
+        </section>
+
+        <!-- Libros Contables -->
+        <section id="libros">
+            <h1>Libros Contables</h1>
+            <h3>Libro Diario</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Debe</th>
+                        <th>Haber</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLibroDiario"></tbody>
+            </table>
+            <h3>Libro Mayor</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cuenta</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLibroMayor"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        // Navegación entre secciones
+        function showSection(sectionId) {
+            document.querySelectorAll('.content section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.sidebar a').forEach(link => link.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`.sidebar a[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        }
+
+        // Datos iniciales
+        const productos = JSON.parse(localStorage.getItem('productos')) || [];
+        const clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+        const ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+        const compras = JSON.parse(localStorage.getItem('compras')) || [];
+        const libroDiario = JSON.parse(localStorage.getItem('libroDiario')) || [];
+        const libroMayor = {};
+
+        // Persistencia
+        function guardarEnLocalStorage(clave, datos) {
+            localStorage.setItem(clave, JSON.stringify(datos));
+        }
+
+        // Funciones de inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarProductos();
+            cargarClientes();
+            cargarLibroDiario();
+            cargarLibroMayor();
+        });
+
+        // CRUD para Productos
+        function cargarProductos() {
+            const tabla = document.getElementById('tablaProductos');
+            tabla.innerHTML = '';
+            productos.forEach((producto, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${producto.nombre}</td>
+                    <td>${producto.precioCompra}</td>
+                    <td>${producto.precioVenta}</td>
+                    <td>${producto.stock}</td>
+                    <td>
+                        <button onclick="eliminarProducto(${index})">Eliminar</button>
+                    </td>
+                `;
+                tabla.appendChild(row);
+            });
+
+            // Actualizar productos en ventas
+            actualizarProductosEnVentas();
+        }
+
+        function actualizarProductosEnVentas() {
+            const selectProductos = document.getElementById('productoVenta');
+            selectProductos.innerHTML = '<option value="">Seleccione un Producto</option>';
+            productos.forEach((producto) => {
+                const option = document.createElement('option');
+                option.value = producto.nombre;
+                option.textContent = producto.nombre;
+                selectProductos.appendChild(option);
+            });
+        }
+
+        function eliminarProducto(index) {
+            productos.splice(index, 1);
+            guardarEnLocalStorage('productos', productos);
+            cargarProductos();
+        }
+
+        document.getElementById('formAgregarProducto').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nuevoProducto = {
+                nombre: document.getElementById('nombreProducto').value,
+                precioCompra: parseFloat(document.getElementById('precioCompra').value),
+                precioVenta: parseFloat(document.getElementById('precioVenta').value),
+                stock: parseInt(document.getElementById('stock').value),
+            };
+            productos.push(nuevoProducto);
+            guardarEnLocalStorage('productos', productos);
+            cargarProductos();
+            e.target.reset();
+        });
+
+        // CRUD para Clientes
+        function cargarClientes() {
+            const tabla = document.getElementById('tablaClientes');
+            tabla.innerHTML = '';
+            clientes.forEach((cliente, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cliente.nombre}</td>
+                    <td>
+                        <button onclick="eliminarCliente(${index})">Eliminar</button>
+                    </td>
+                `;
+                tabla.appendChild(row);
+            });
+
+            actualizarClientesEnVentas();
+        }
+
+        function actualizarClientesEnVentas() {
+            const selectClientes = document.getElementById('clienteVenta');
+            selectClientes.innerHTML = '<option value="">Seleccione un Cliente</option>';
+            clientes.forEach((cliente) => {
+                const option = document.createElement('option');
+                option.value = cliente.nombre;
+                option.textContent = cliente.nombre;
+                selectClientes.appendChild(option);
+            });
+        }
+
+        function eliminarCliente(index) {
+            clientes.splice(index, 1);
+            guardarEnLocalStorage('clientes', clientes);
+            cargarClientes();
+        }
+
+        document.getElementById('formAgregarCliente').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nuevoCliente = { nombre: document.getElementById('nombreCliente').value };
+            clientes.push(nuevoCliente);
+            guardarEnLocalStorage('clientes', clientes);
+            cargarClientes();
+            e.target.reset();
+        });
+
+        // Libros Contables
+        function cargarLibroDiario() {
+            const tabla = document.getElementById('tablaLibroDiario');
+            tabla.innerHTML = '';
+            libroDiario.forEach((transaccion) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaccion.descripcion}</td>
+                    <td>${transaccion.debe}</td>
+                    <td>${transaccion.haber}</td>
+                `;
+                tabla.appendChild(row);
+            });
+        }
+
+        function cargarLibroMayor() {
+            const tabla = document.getElementById('tablaLibroMayor');
+            tabla.innerHTML = '';
+            Object.keys(libroMayor).forEach((cuenta) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cuenta}</td>
+                    <td>${libroMayor[cuenta]}</td>
+                `;
+                tabla.appendChild(row);
+            });
+        }
+
+        function registrarEnLibroDiario(descripcion, debe, haber) {
+            libroDiario.push({ descripcion, debe, haber });
+            guardarEnLocalStorage('libroDiario', libroDiario);
+            cargarLibroDiario();
+        }
+
+        function actualizarLibroMayor(cuenta, monto) {
+            if (!libroMayor[cuenta]) libroMayor[cuenta] = 0;
+            libroMayor[cuenta] += monto;
+            guardarEnLocalStorage('libroMayor', libroMayor);
+            cargarLibroMayor();
+        }
+    </script>
+</body>
+</html>
